@@ -41,11 +41,11 @@ setup(
     include_package_data=True,
     keywords='molasses, feature flags, feature toggles',
     name='molasses',
-    packages=find_packages(include=['molasses_python', 'molasses_python.*']),
+    packages=find_packages(include=['molasses', 'molasses.*']),
     setup_requires=setup_requirements,
     test_suite='tests',
     tests_require=test_requirements,
     url='https://github.com/molassesapp/molasses_python',
-    version='0.1.1',
+    version='0.1.2',
     zip_safe=False,
 )

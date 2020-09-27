@@ -4,7 +4,7 @@
 
 import pytest
 
-from molasses_python import MolassesClient
+from molasses import MolassesClient
 
 import responses
 

@@ -1,8 +1,8 @@
-"""Top-level package for molasses-python."""
+"""Top-level package for molasses."""
 
 __author__ = """James Hrisho"""
 __email__ = 'james.hrisho@gmail.com'
-__version__ = '0.1.0'
+__version__ = '0.1.2'
 
 import logging
 import requests
