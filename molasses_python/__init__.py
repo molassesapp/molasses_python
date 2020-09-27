@@ -9,6 +9,9 @@ import requests
 import zlib
 import json
 from typing import Dict, Optional
+from apscheduler.job import Job
+from apscheduler.schedulers.background import BackgroundScheduler
+from apscheduler.triggers.interval import IntervalTrigger
 logger = logging.getLogger(__name__)
 
 BASE_URL = 'https://us-central1-molasses-36bff.cloudfunctions.net'
@@ -26,6 +29,10 @@ class MolassesClient:
         self.send_events = send_events
         self.base_url = base_url
         self.__fetch_features()
+        self.scheduler = BackgroundScheduler()
+        self.scheduler.add_job(self.__fetch_features,
+                               trigger=IntervalTrigger(seconds=int(15)))
+        self.scheduler.start()
 
     def is_active(self, key: str, user: Optional[Dict] = None):
         if self.__initialized is not True:
@@ -147,3 +154,6 @@ class MolassesClient:
                     for feature in features:
                         self.__cache[feature["key"]] = feature
                     self.__initialized = True
+        else:
+            logger.error("Molasses - %s %s",
+                         response.status_code, response.text, exc_info=1)
