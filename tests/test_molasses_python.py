@@ -237,14 +237,14 @@ def test_basic():
                   json=responseA, status=200)
 
     molasses = MolassesClient("test_key",  send_events=False)
-    assert molasses.is_active("FOO_TEST") == True
-    assert molasses.is_active("FOO_TEST", {"foo": "foo"}) == True
-    assert molasses.is_active("NOT_CHECKOUT") == False
-    assert molasses.is_active("FOO_TEST", {"id": "foo", "params": {}}) == True
+    assert molasses.is_active("FOO_TEST") is True
+    assert molasses.is_active("FOO_TEST", {"foo": "foo"}) is True
+    assert molasses.is_active("NOT_CHECKOUT") is False
+    assert molasses.is_active("FOO_TEST", {"id": "foo", "params": {}}) is True
     assert molasses.is_active("FOO_TEST", {"id": "food", "params": {
-                              "isScaredUser": "true"}}) == False
+                              "isScaredUser": "true"}}) is False
     assert molasses.is_active("FOO_TEST", {"id": "foodie", "params": {
-                              "isBetaUser": "true"}}) == True
+                              "isBetaUser": "true"}}) is True
 
 
 @responses.activate
@@ -253,15 +253,15 @@ def test_more_advanced():
                   json=responseB, status=200)
 
     molasses = MolassesClient("test_key",  send_events=False)
-    assert molasses.is_active("FOO_TEST") == True
-    assert molasses.is_active("FOO_TEST", {"foo": "foo"}) == True
-    assert molasses.is_active("NOT_CHECKOUT") == False
+    assert molasses.is_active("FOO_TEST") is True
+    assert molasses.is_active("FOO_TEST", {"foo": "foo"}) is True
+    assert molasses.is_active("NOT_CHECKOUT") is False
     assert molasses.is_active("FOO_TEST", {"id": "foo", "params": {
-                              "isBetaUser": "false", "isScaredUser": "false"}}) == True
+                              "isBetaUser": "false", "isScaredUser": "false"}}) is True
     assert molasses.is_active("FOO_TEST", {"id": "food", "params": {
-                              "isScaredUser": "true"}}) == False
+                              "isScaredUser": "true"}}) is False
     assert molasses.is_active("FOO_TEST", {"id": "foodie", "params": {
-                              "isBetaUser": "true"}}) == True
+                              "isBetaUser": "true"}}) is True
 
 
 @responses.activate
@@ -274,11 +274,11 @@ def test_even_more_advanced():
         "isScaredUser": "scared",
         "isDefinitelyScaredUser": "scared",
         "isMostDefinitelyScaredUser": "scared",
-    }}) == False
+    }}) is False
     assert molasses.is_active("FOO_TEST", {"id": "food", "params": {
-                              "isDefinitelyBetaUser": "true", "isBetaUser": "true"}}) == True
+                              "isDefinitelyBetaUser": "true", "isBetaUser": "true"}}) is True
     assert molasses.is_active("FOO_TEST", {"id": "foodie", "params": {
-                              "isBetaUser": "true"}}) == True
+                              "isBetaUser": "true"}}) is True
 
 
 @responses.activate
@@ -287,20 +287,20 @@ def test_percentage_tests():
                   json=responseD, status=200)
 
     molasses = MolassesClient("test_key", send_events=False)
-    assert molasses.is_active("FOO_TEST") == True
-    assert molasses.is_active("FOO_FALSE_TEST") == False
+    assert molasses.is_active("FOO_TEST") is True
+    assert molasses.is_active("FOO_FALSE_TEST") is False
     assert molasses.is_active("FOO_50_PERCENT_TEST", {
-                              "id": "140", "params": {}}) == False
+                              "id": "140", "params": {}}) is False
     assert molasses.is_active("FOO_50_PERCENT_TEST", {
-                              "id": "123", "params": {}}) == True
+                              "id": "123", "params": {}}) is True
     assert molasses.is_active("FOO_0_PERCENT_TEST", {
-        "id": "123", "params": {}}) == False
+        "id": "123", "params": {}}) is False
     assert molasses.is_active("FOO_ID_TEST", {
-        "id": "123", "params": {}}) == False
+        "id": "123", "params": {}}) is False
     assert molasses.is_active("FOO_ID_TEST", {
-        "id": "124", "params": {}}) == True
+        "id": "124", "params": {}}) is True
     assert molasses.is_active("FOO_ID_TEST", {
-        "id": "122", "params": {}}) == True
+        "id": "122", "params": {}}) is True
 
 
 @responses.activate
@@ -311,13 +311,13 @@ def test_experiments():
                   json={}, status=200)
 
     molasses = MolassesClient("test_key", send_events=True)
-    assert molasses.is_active("FOO_TEST") == True
-    assert molasses.is_active("FOO_FALSE_TEST") == False
+    assert molasses.is_active("FOO_TEST") is True
+    assert molasses.is_active("FOO_FALSE_TEST") is False
     assert molasses.is_active("FOO_50_PERCENT_TEST", {
-                              "id": "140", "params": {}}) == False
+                              "id": "140", "params": {}}) is False
     molasses.experiment_success("FOO_50_PERCENT_TEST", {}, {
         "id": "140", "params": {}})
     assert molasses.is_active("FOO_50_PERCENT_TEST", {
-                              "id": "123", "params": {}}) == True
+                              "id": "123", "params": {}}) is True
     molasses.experiment_success("FOO_50_PERCENT_TEST", {}, {
         "id": "123", "params": {}})

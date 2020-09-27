@@ -9,7 +9,6 @@ import requests
 import zlib
 import json
 from typing import Dict, Optional
-from apscheduler.job import Job
 from apscheduler.schedulers.background import BackgroundScheduler
 from apscheduler.triggers.interval import IntervalTrigger
 logger = logging.getLogger(__name__)
@@ -73,7 +72,7 @@ class MolassesClient:
             return False
         if user is None or "id" not in user:
             return True
-        segment_map: Dict[str, Optional[Dict]] = {}
+        segment_map = {}
         for feature_segment in feature["segments"]:
             segment_type = feature_segment["segmentType"]
             segment_map[segment_type] = feature_segment
@@ -119,11 +118,11 @@ class MolassesClient:
         if param_exists is False:
             return False
         if operator == "in":
-            l = constraint["values"].split(",")
-            return user_value in l
+            list_values = constraint["values"].split(",")
+            return user_value in list_values
         elif operator == "nin":
-            l = constraint["values"].split(",")
-            return user_value not in l
+            list_values = constraint["values"].split(",")
+            return user_value not in list_values
         elif operator == "equals":
             return user_value == constraint["values"]
         elif operator == "doesNotEqual":
