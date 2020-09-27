@@ -194,6 +194,31 @@ responseD = {
                     },
                 ],
             },
+            {
+                "active": True,
+                "description": "foo",
+                "key": "FOO_ID_TEST",
+                "segments": [
+                    {
+                        "constraint": "all",
+                        "percentage": 100,
+                        "segmentType": "alwaysControl",
+                        "userConstraints": [
+                            {
+                                "userParam": "id",
+                                "operator": "equals",
+                                "values": "123",
+                            },
+                        ],
+                    },
+                    {
+                        "constraint": "all",
+                        "segmentType": "everyoneElse",
+                        "percentage": 100,
+                        "userConstraints": [],
+                    },
+                ],
+            },
         ],
     },
 }
@@ -218,7 +243,53 @@ def test_basic():
     assert molasses.is_active("FOO_TEST", {"id": "food", "params": {
                               "isScaredUser": "true"}}) == False
     assert molasses.is_active("FOO_TEST", {"id": "foodie", "params": {
-                              "isScaredUser": "false"}}) == True
+                              "isBetaUser": "true"}}) == True
+
+
+@responses.activate
+def test_more_advanced():
+    """Sample pytest fixture.
+
+    See more at: http://doc.pytest.org/en/latest/fixture.html
+    """
+    # import requests
+    # return requests.get('https://github.com/audreyr/cookiecutter-pypackage')
+    responses.add(responses.GET, 'https://us-central1-molasses-36bff.cloudfunctions.net/get-features',
+                  json=responseB, status=200)
+
+    molasses = MolassesClient("test_key")
+    assert molasses.is_active("FOO_TEST") == True
+    assert molasses.is_active("FOO_TEST", {"foo": "foo"}) == True
+    assert molasses.is_active("NOT_CHECKOUT") == False
+    assert molasses.is_active("FOO_TEST", {"id": "foo", "params": {
+                              "isBetaUser": "false", "isScaredUser": "false"}}) == True
+    assert molasses.is_active("FOO_TEST", {"id": "food", "params": {
+                              "isScaredUser": "true"}}) == False
+    assert molasses.is_active("FOO_TEST", {"id": "foodie", "params": {
+                              "isBetaUser": "true"}}) == True
+
+
+@responses.activate
+def test_even_more_advanced():
+    """Sample pytest fixture.
+
+    See more at: http://doc.pytest.org/en/latest/fixture.html
+    """
+    # import requests
+    # return requests.get('https://github.com/audreyr/cookiecutter-pypackage')
+    responses.add(responses.GET, 'https://us-central1-molasses-36bff.cloudfunctions.net/get-features',
+                  json=responseC, status=200)
+
+    molasses = MolassesClient("test_key")
+    assert molasses.is_active("FOO_TEST", {"id": "foo", "params": {
+        "isScaredUser": "scared",
+        "isDefinitelyScaredUser": "scared",
+        "isMostDefinitelyScaredUser": "scared",
+    }}) == False
+    assert molasses.is_active("FOO_TEST", {"id": "food", "params": {
+                              "isDefinitelyBetaUser": "true", "isBetaUser": "true"}}) == True
+    assert molasses.is_active("FOO_TEST", {"id": "foodie", "params": {
+                              "isBetaUser": "true"}}) == True
 
 
 @responses.activate
@@ -234,4 +305,10 @@ def test_percentage_tests():
     assert molasses.is_active("FOO_50_PERCENT_TEST", {
                               "id": "123", "params": {}}) == True
     assert molasses.is_active("FOO_0_PERCENT_TEST", {
-                              "id": "123", "params": {}}) == False
+        "id": "123", "params": {}}) == False
+    assert molasses.is_active("FOO_ID_TEST", {
+        "id": "123", "params": {}}) == False
+    assert molasses.is_active("FOO_ID_TEST", {
+        "id": "124", "params": {}}) == True
+    assert molasses.is_active("FOO_ID_TEST", {
+        "id": "122", "params": {}}) == True
