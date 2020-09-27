@@ -60,7 +60,6 @@ class MolassesClient:
             return False
         c = zlib.crc32(bytes(id, "utf-8")) & 0xffffffff
         v = abs(c % 100)
-        print("percentage:", v, "\n\n")
         return v < percentage
 
     def __is_user_in_segment(self, user: Optional[Dict], s: Dict):
