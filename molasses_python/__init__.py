@@ -7,6 +7,7 @@ __version__ = '0.1.0'
 import logging
 import requests
 import zlib
+import json
 from typing import Dict, Optional
 logger = logging.getLogger(__name__)
 
@@ -32,9 +33,33 @@ class MolassesClient:
 
         if key in self.__cache:
             feature = self.__cache[key]
-            return self.__is_active(feature, user)
+            result = self.__is_active(feature, user)
+            if user and "id" in user and self.send_events:
+                self.__send_events({
+                    "event": "experiment_started",
+                    "tags": user["params"],
+                    "userId": user["id"],
+                    "featureId": feature["id"],
+                    "featureName": key,
+                    "testType": result if "experiment" else "control"
+                })
+            return result
         else:
             return False
+
+    def experiment_success(self, key: str, additional_details: Dict, user: Optional[Dict] = None):
+        if self.__initialized is not True or self.send_events is not True or user is None or "id" not in user:
+            return False
+        feature = self.__cache[key]
+        result = self.__is_active(feature, user)
+        self.__send_events({
+            "event": "experiment_success",
+            "tags": {**user["params"], **additional_details},
+            "userId": user["id"],
+            "featureId": feature["id"],
+            "featureName": key,
+            "testType": result if "experiment" else "control"
+        })
 
     def __is_active(self, feature, user=None):
         if feature["active"] is not True:
@@ -103,11 +128,16 @@ class MolassesClient:
         else:
             return False
 
+    def __send_events(self, event_options: Dict):
+        event_options["tags"] = json.dumps(event_options["tags"])
+        requests.post(self.base_url + "/analytics", json=event_options, headers={
+            "Authorization": "Bearer " + self.api_key
+        })
+
     def __fetch_features(self):
         response = requests.get(self.base_url + "/get-features", params={}, headers={
             "Authorization": "Bearer " + self.api_key
         })
-        # print(response)
         if response.status_code == 200:
             data = response.json()
             if "data" in data:

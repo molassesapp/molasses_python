@@ -54,6 +54,7 @@ responseB = {
     "data": {
         "features": [
             {
+                "id": "1",
                 "active": True,
                 "description": "foo",
                 "key": "FOO_TEST",
@@ -98,6 +99,7 @@ responseC = {
     "data": {
         "features": [
             {
+                "id": "1",
                 "active": True,
                 "description": "foo",
                 "key": "FOO_TEST",
@@ -157,18 +159,21 @@ responseD = {
     "data": {
         "features": [
             {
+                "id": "1",
                 "active": True,
                 "description": "foo",
                 "key": "FOO_TEST",
                 "segments": [],
             },
             {
+                "id": "2",
                 "active": False,
                 "description": "foo",
                 "key": "FOO_FALSE_TEST",
                 "segments": [],
             },
             {
+                "id": "3",
                 "active": True,
                 "description": "foo",
                 "key": "FOO_50_PERCENT_TEST",
@@ -182,6 +187,7 @@ responseD = {
                 ],
             },
             {
+                "id": "4",
                 "active": True,
                 "description": "foo",
                 "key": "FOO_0_PERCENT_TEST",
@@ -195,6 +201,7 @@ responseD = {
                 ],
             },
             {
+                "id": "5",
                 "active": True,
                 "description": "foo",
                 "key": "FOO_ID_TEST",
@@ -226,16 +233,10 @@ responseD = {
 
 @responses.activate
 def test_basic():
-    """Sample pytest fixture.
-
-    See more at: http://doc.pytest.org/en/latest/fixture.html
-    """
-    # import requests
-    # return requests.get('https://github.com/audreyr/cookiecutter-pypackage')
     responses.add(responses.GET, 'https://us-central1-molasses-36bff.cloudfunctions.net/get-features',
                   json=responseA, status=200)
 
-    molasses = MolassesClient("test_key")
+    molasses = MolassesClient("test_key",  send_events=False)
     assert molasses.is_active("FOO_TEST") == True
     assert molasses.is_active("FOO_TEST", {"foo": "foo"}) == True
     assert molasses.is_active("NOT_CHECKOUT") == False
@@ -248,16 +249,10 @@ def test_basic():
 
 @responses.activate
 def test_more_advanced():
-    """Sample pytest fixture.
-
-    See more at: http://doc.pytest.org/en/latest/fixture.html
-    """
-    # import requests
-    # return requests.get('https://github.com/audreyr/cookiecutter-pypackage')
     responses.add(responses.GET, 'https://us-central1-molasses-36bff.cloudfunctions.net/get-features',
                   json=responseB, status=200)
 
-    molasses = MolassesClient("test_key")
+    molasses = MolassesClient("test_key",  send_events=False)
     assert molasses.is_active("FOO_TEST") == True
     assert molasses.is_active("FOO_TEST", {"foo": "foo"}) == True
     assert molasses.is_active("NOT_CHECKOUT") == False
@@ -271,16 +266,10 @@ def test_more_advanced():
 
 @responses.activate
 def test_even_more_advanced():
-    """Sample pytest fixture.
-
-    See more at: http://doc.pytest.org/en/latest/fixture.html
-    """
-    # import requests
-    # return requests.get('https://github.com/audreyr/cookiecutter-pypackage')
     responses.add(responses.GET, 'https://us-central1-molasses-36bff.cloudfunctions.net/get-features',
                   json=responseC, status=200)
 
-    molasses = MolassesClient("test_key")
+    molasses = MolassesClient("test_key",  send_events=False)
     assert molasses.is_active("FOO_TEST", {"id": "foo", "params": {
         "isScaredUser": "scared",
         "isDefinitelyScaredUser": "scared",
@@ -297,7 +286,7 @@ def test_percentage_tests():
     responses.add(responses.GET, 'https://us-central1-molasses-36bff.cloudfunctions.net/get-features',
                   json=responseD, status=200)
 
-    molasses = MolassesClient("test_key")
+    molasses = MolassesClient("test_key", send_events=False)
     assert molasses.is_active("FOO_TEST") == True
     assert molasses.is_active("FOO_FALSE_TEST") == False
     assert molasses.is_active("FOO_50_PERCENT_TEST", {
@@ -312,3 +301,23 @@ def test_percentage_tests():
         "id": "124", "params": {}}) == True
     assert molasses.is_active("FOO_ID_TEST", {
         "id": "122", "params": {}}) == True
+
+
+@responses.activate
+def test_experiments():
+    responses.add(responses.GET, 'https://us-central1-molasses-36bff.cloudfunctions.net/get-features',
+                  json=responseD, status=200)
+    responses.add(responses.POST, 'https://us-central1-molasses-36bff.cloudfunctions.net/analytics',
+                  json={}, status=200)
+
+    molasses = MolassesClient("test_key", send_events=True)
+    assert molasses.is_active("FOO_TEST") == True
+    assert molasses.is_active("FOO_FALSE_TEST") == False
+    assert molasses.is_active("FOO_50_PERCENT_TEST", {
+                              "id": "140", "params": {}}) == False
+    molasses.experiment_success("FOO_50_PERCENT_TEST", {}, {
+        "id": "140", "params": {}})
+    assert molasses.is_active("FOO_50_PERCENT_TEST", {
+                              "id": "123", "params": {}}) == True
+    molasses.experiment_success("FOO_50_PERCENT_TEST", {}, {
+        "id": "123", "params": {}})
