@@ -29,8 +29,8 @@ class MolassesClient:
         self.base_url = base_url
         self.__fetch_features()
         self.scheduler = BackgroundScheduler()
-        self.scheduler.add_job(self.__fetch_features,
-                               trigger=IntervalTrigger(seconds=int(15)))
+        self.features_job = self.scheduler.add_job(self.__fetch_features,
+                                                   trigger=IntervalTrigger(seconds=int(15)))
         self.scheduler.start()
 
     def is_active(self, key: str, user: Optional[Dict] = None):
@@ -66,6 +66,10 @@ class MolassesClient:
             "featureName": key,
             "testType": result if "experiment" else "control"
         })
+
+    def stop(self):
+        self.features_job.stop()
+        self.scheduler.shutdown()
 
     def __is_active(self, feature, user=None):
         if feature["active"] is not True:
