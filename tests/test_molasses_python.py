@@ -233,7 +233,7 @@ responseD = {
 
 @responses.activate
 def test_basic():
-    responses.add(responses.GET, 'https://us-central1-molasses-36bff.cloudfunctions.net/get-features',
+    responses.add(responses.GET, 'https://sdk.molasses.app/v1/features',
                   json=responseA, status=200)
 
     molasses = MolassesClient("test_key",  send_events=False)
@@ -249,7 +249,7 @@ def test_basic():
 
 @responses.activate
 def test_more_advanced():
-    responses.add(responses.GET, 'https://us-central1-molasses-36bff.cloudfunctions.net/get-features',
+    responses.add(responses.GET, 'https://sdk.molasses.app/v1/features',
                   json=responseB, status=200)
 
     molasses = MolassesClient("test_key",  send_events=False)
@@ -266,7 +266,7 @@ def test_more_advanced():
 
 @responses.activate
 def test_even_more_advanced():
-    responses.add(responses.GET, 'https://us-central1-molasses-36bff.cloudfunctions.net/get-features',
+    responses.add(responses.GET, 'https://sdk.molasses.app/v1/features',
                   json=responseC, status=200)
 
     molasses = MolassesClient("test_key",  send_events=False)
@@ -283,7 +283,7 @@ def test_even_more_advanced():
 
 @responses.activate
 def test_percentage_tests():
-    responses.add(responses.GET, 'https://us-central1-molasses-36bff.cloudfunctions.net/get-features',
+    responses.add(responses.GET, 'https://sdk.molasses.app/v1/features',
                   json=responseD, status=200)
 
     molasses = MolassesClient("test_key", send_events=False)
@@ -305,9 +305,9 @@ def test_percentage_tests():
 
 @responses.activate
 def test_experiments():
-    responses.add(responses.GET, 'https://us-central1-molasses-36bff.cloudfunctions.net/get-features',
+    responses.add(responses.GET, 'https://sdk.molasses.app/v1/features',
                   json=responseD, status=200)
-    responses.add(responses.POST, 'https://us-central1-molasses-36bff.cloudfunctions.net/analytics',
+    responses.add(responses.POST, 'https://sdk.molasses.app/v1/analytics',
                   json={}, status=200)
 
     molasses = MolassesClient("test_key", send_events=True)
