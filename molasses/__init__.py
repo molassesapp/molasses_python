@@ -13,7 +13,7 @@ from apscheduler.schedulers.background import BackgroundScheduler
 from apscheduler.triggers.interval import IntervalTrigger
 logger = logging.getLogger(__name__)
 
-BASE_URL = 'https://us-central1-molasses-36bff.cloudfunctions.net'
+BASE_URL = 'https://sdk.molasses.app/v1'
 
 
 class MolassesClient:
@@ -145,7 +145,7 @@ class MolassesClient:
         })
 
     def __fetch_features(self):
-        response = requests.get(self.base_url + "/get-features", params={}, headers={
+        response = requests.get(self.base_url + "/features", params={}, headers={
             "Authorization": "Bearer " + self.api_key
         })
         if response.status_code == 200:
