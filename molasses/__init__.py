@@ -13,7 +13,6 @@ import sseclient
 import math
 import threading
 import time
-import pprint
 from typing import Dict, Optional
 from apscheduler.schedulers.background import BackgroundScheduler
 from apscheduler.triggers.interval import IntervalTrigger
@@ -173,7 +172,7 @@ class MolassesClient:
         if type(user_value) is (int, float, complex):
             return user_value
         elif type(user_value) is bool:
-            return 1 if user_value == True else 0
+            return 1 if user_value else 0
         else:
             return float(user_value)
 
@@ -240,7 +239,7 @@ class MolassesClient:
             math.trunc(random() * 0.3 * scheduled_time)
         self.__retry_count = self.__retry_count + 1
         logger.info(
-            f"Scheduling reconnect to Molasses in {scheduled_time} Seconds")
+            "Scheduling reconnect to Molasses in {scheduled_time} Seconds".format(scheduled_time=scheduled_time))
         time.sleep(scheduled_time)
         self.__start_stream()
 
