@@ -13,7 +13,7 @@ molasses-python
 
 A Python SDK for Molasses. It allows you to evaluate user's status for a feature. It also helps simplify logging events for A/B testing.
 
-Molasses uses polling to check if you have updated features. Once initialized, it takes microseconds to evaluate if a user is active.
+Molasses uses server sent events to get instant updates with an option for polling to check if you have updated features. Once initialized, it takes microseconds to evaluate if a user is active.
 
 
 Install
