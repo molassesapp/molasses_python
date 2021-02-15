@@ -76,6 +76,38 @@ roll outs or track that user’s behavior.
 Experiments
 ~~~~~~~~~~~
 
+To track an analytics events called the ``track`` method.
+
+.. code:: python
+
+   client.track("Button Clicked",{
+      "id":"foo",
+      "params":{
+        "isBetaUser":"false",
+        "isScaredUser":"false"
+       }
+    },
+    {
+      "version": "v2.3.0"
+   })
+
+To track whether an experiment was successful you can call
+``experiment_started``. experiment_started takes the feature’s name, any
+additional parameters for the event and the user.
+
+.. code:: python
+
+   client.experiment_started("GOOGLE_SSO",{
+      "id":"foo",
+      "params":{
+        "isBetaUser":"false",
+        "isScaredUser":"false"
+       }
+    },
+    {
+      "version": "v2.3.0"
+   })
+
 To track whether an experiment was successful you can call
 ``experiment_success``. experiment_success takes the feature’s name, any
 additional parameters for the event and the user.
@@ -83,14 +115,15 @@ additional parameters for the event and the user.
 .. code:: python
 
    client.experiment_success("GOOGLE_SSO",{
-           "version": "v2.3.0"
-       },{
       "id":"foo",
       "params":{
         "isBetaUser":"false",
         "isScaredUser":"false"
        }
-    })
+    },
+    {
+      "version": "v2.3.0"
+   })
 
 Example
 -------

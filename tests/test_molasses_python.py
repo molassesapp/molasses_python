@@ -99,6 +99,77 @@ responseC = {
     "data": {
         "features": [
             {
+                "id": "2",
+                "active": True,
+                "description": "bar",
+                "key": "NUMBERS_BOOLS",
+                "segments": [
+                    {
+                        "percentage": 100,
+                        "segmentType": "alwaysControl",
+                        "constraint": "all",
+                        "userConstraints": [
+                            {
+                                "userParam": "lt",
+                                "userParamType": "number",
+                                "operator": "lt",
+                                "values": 12,
+                            },
+                            {
+                                "userParam": "lte",
+                                "userParamType": "number",
+                                "operator": "lte",
+                                "values": 12,
+                            },
+                            {
+                                "userParam": "gt",
+                                "userParamType": "number",
+                                "operator": "gt",
+                                "values": 12,
+                            },
+                            {
+                                "userParam": "gte",
+                                "userParamType": "number",
+                                "operator": "gte",
+                                "values": 12,
+                            },
+                            {
+                                "userParam": "equals",
+                                "userParamType": "number",
+                                "operator": "equals",
+                                "values": 12,
+                            },
+                            {
+                                "userParam": "doesNotEqual",
+                                "userParamType": "number",
+                                "operator": "doesNotEqual",
+                                "values": 12,
+                            },
+                            {
+                                "userParam": "equalsBool",
+                                "userParamType": "boolean",
+                                "operator": "equals",
+                                "values": True,
+                            },
+                            {
+                                "userParam": "doesNotEqualBool",
+                                "userParamType": "boolean",
+                                "operator": "doesNotEqual",
+                                "values": True,
+                            },
+
+                        ],
+
+                    },
+                    {
+                        "constraint": "all",
+                        "percentage": 50,
+                        "segmentType": "everyoneElse",
+                        "userConstraints": [],
+                    },
+                ],
+            },
+            {
                 "id": "1",
                 "active": True,
                 "description": "foo",
@@ -236,7 +307,7 @@ def test_basic():
     responses.add(responses.GET, 'https://sdk.molasses.app/v1/features',
                   json=responseA, status=200)
 
-    molasses = MolassesClient("test_key",  send_events=False)
+    molasses = MolassesClient("test_key", polling=True)
     assert molasses.is_active("FOO_TEST") is True
     assert molasses.is_active("FOO_TEST", {"foo": "foo"}) is True
     assert molasses.is_active("NOT_CHECKOUT") is False
@@ -252,7 +323,7 @@ def test_more_advanced():
     responses.add(responses.GET, 'https://sdk.molasses.app/v1/features',
                   json=responseB, status=200)
 
-    molasses = MolassesClient("test_key",  send_events=False)
+    molasses = MolassesClient("test_key", polling=True)
     assert molasses.is_active("FOO_TEST") is True
     assert molasses.is_active("FOO_TEST", {"foo": "foo"}) is True
     assert molasses.is_active("NOT_CHECKOUT") is False
@@ -268,8 +339,9 @@ def test_more_advanced():
 def test_even_more_advanced():
     responses.add(responses.GET, 'https://sdk.molasses.app/v1/features',
                   json=responseC, status=200)
-
-    molasses = MolassesClient("test_key",  send_events=False)
+    responses.add(responses.POST, 'https://sdk.molasses.app/v1/analytics',
+                  json={}, status=200)
+    molasses = MolassesClient("test_key", polling=True)
     assert molasses.is_active("FOO_TEST", {"id": "foo", "params": {
         "isScaredUser": "scared",
         "isDefinitelyScaredUser": "scared",
@@ -279,6 +351,88 @@ def test_even_more_advanced():
                               "isDefinitelyBetaUser": "true", "isBetaUser": "true"}}) is True
     assert molasses.is_active("FOO_TEST", {"id": "foodie", "params": {
                               "isBetaUser": "true"}}) is True
+    assert molasses.is_active("NUMBERS_BOOLS", {
+        "id": "12346",
+        "params": {
+            "lt": True,
+            "lte": "12",
+            "gt": 14,
+            "gte": 12,
+            "equals": 12,
+            "doesNotEqual": False,
+            "equalsBool": True,
+            "doesNotEqualBool": False,
+        }
+    }) is False
+    assert molasses.is_active("NUMBERS_BOOLS", {
+        "id": "12346",
+        "params": {
+            "lt": 13,
+            "lte": "12",
+            "gt": 14,
+            "gte": 12,
+            "equals": 12,
+            "doesNotEqual": False,
+            "equalsBool": True,
+            "doesNotEqualBool": "true",
+        }
+    }) is True
+
+    assert molasses.is_active("NUMBERS_BOOLS", {
+        "id": "123444",  # valid crc32 percentage
+        "params": {
+            "lt": True,
+            "lte": "12",
+            "gt": 14,
+            "gte": 12,
+            "equals": 12,
+            "doesNotEqual": False,
+            "equalsBool": 0,
+            "doesNotEqualBool": "true",
+        }
+    }) is True
+    molasses.experiment_started("NUMBERS_BOOLS", {
+        "id": "123444",  # valid crc32 percentage
+        "params": {
+            "lt": True,
+            "lte": "12",
+            "gt": 14,
+            "gte": 12,
+            "equals": 12,
+            "doesNotEqual": False,
+            "equalsBool": 0,
+            "doesNotEqualBool": "true",
+        },
+    })
+    molasses.experiment_success("NUMBERS_BOOLS", {
+        "id": "123444",  # valid crc32 percentage
+        "params": {
+            "lt": True,
+            "lte": "12",
+            "gt": 14,
+            "gte": 12,
+            "equals": 12,
+            "doesNotEqual": False,
+            "equalsBool": 0,
+            "doesNotEqualBool": "true",
+        },
+    })
+    molasses.experiment_started("Clicked button", {
+        "id": "123444",  # v
+    })
+    molasses.track("Clicked button", {
+        "id": "123444",  # valid crc32 percentage
+        "params": {
+            "lt": True,
+            "lte": "12",
+            "gt": 14,
+            "gte": 12,
+            "equals": 12,
+            "doesNotEqual": False,
+            "equalsBool": 0,
+            "doesNotEqualBool": "true",
+        },
+    })
 
 
 @responses.activate
@@ -286,7 +440,7 @@ def test_percentage_tests():
     responses.add(responses.GET, 'https://sdk.molasses.app/v1/features',
                   json=responseD, status=200)
 
-    molasses = MolassesClient("test_key", send_events=False)
+    molasses = MolassesClient("test_key", polling=True)
     assert molasses.is_active("FOO_TEST") is True
     assert molasses.is_active("FOO_FALSE_TEST") is False
     assert molasses.is_active("FOO_50_PERCENT_TEST", {
@@ -310,7 +464,7 @@ def test_experiments():
     responses.add(responses.POST, 'https://sdk.molasses.app/v1/analytics',
                   json={}, status=200)
 
-    molasses = MolassesClient("test_key", send_events=True)
+    molasses = MolassesClient("test_key", auto_send_events=True, polling=True)
     assert molasses.is_active("FOO_TEST") is True
     assert molasses.is_active("FOO_FALSE_TEST") is False
     assert molasses.is_active("FOO_50_PERCENT_TEST", {
@@ -319,5 +473,5 @@ def test_experiments():
         "id": "140", "params": {}})
     assert molasses.is_active("FOO_50_PERCENT_TEST", {
                               "id": "123", "params": {}}) is True
-    molasses.experiment_success("FOO_50_PERCENT_TEST", {}, {
+    molasses.experiment_success("FOO_50_PERCENT_TEST", {
         "id": "123", "params": {}})
