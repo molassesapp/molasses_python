@@ -170,6 +170,65 @@ responseC = {
                 ],
             },
             {
+                "id": "3",
+                "active": True,
+                "description": "bar",
+                "key": "semver",
+                "segments": [
+                    {
+                        "percentage": 100,
+                        "segmentType": "alwaysExperiment",
+                        "constraint": "any",
+                        "userConstraints": [
+                            {
+                                "userParam": "lt",
+                                "userParamType": "semver",
+                                "operator": "lt",
+                                "values": "1.2.0",
+                            },
+                            {
+                                "userParam": "lte",
+                                "userParamType": "semver",
+                                "operator": "lte",
+                                "values": "1.2.0",
+                            },
+                            {
+                                "userParam": "gt",
+                                "userParamType": "semver",
+                                "operator": "gt",
+                                "values": "1.2.0",
+                            },
+                            {
+                                "userParam": "gte",
+                                "userParamType": "semver",
+                                "operator": "gte",
+                                "values": "1.2.0",
+                            },
+                            {
+                                "userParam": "equals",
+                                "userParamType": "semver",
+                                "operator": "equals",
+                                "values": "1.2.0",
+                            },
+                            {
+                                "userParam": "doesNotEqual",
+                                "userParamType": "semver",
+                                "operator": "doesNotEqual",
+                                "values": "1.2.0",
+                            },
+
+                        ],
+
+                    },
+                    {
+                        "constraint": "all",
+                        "percentage": 0,
+                        "segmentType": "everyoneElse",
+                        "userConstraints": [],
+                    },
+                ],
+            },
+            {
                 "id": "1",
                 "active": True,
                 "description": "foo",
@@ -377,7 +436,97 @@ def test_even_more_advanced():
             "doesNotEqualBool": "true",
         }
     }) is True
-
+#             "lte": "12",
+            # "gt": 14,
+            # "gte": 12,
+            # "equals": 12,
+            # "doesNotEqual": False,
+            # "equalsBool": 0,
+            # "doesNotEqualBool": "true",
+    assert molasses.is_active("semver", {
+        "id": "123444",  # valid crc32 percentage
+        "params": {
+            "lt": "1.1.9",
+        }
+    }) is True
+    assert molasses.is_active("semver", {
+        "id": "123444",  # valid crc32 percentage
+        "params": {
+            "lt": "1.2.0",
+        }
+    }) is False
+    assert molasses.is_active("semver", {
+        "id": "123444",  # valid crc32 percentage
+        "params": {
+            "gt": "1.3.0",
+        }
+    }) is True
+    assert molasses.is_active("semver", {
+        "id": "123444",  # valid crc32 percentage
+        "params": {
+            "gt": "1.2.0",
+        }
+    }) is False
+    assert molasses.is_active("semver", {
+        "id": "123444",  # valid crc32 percentage
+        "params": {
+            "lte": "1.1.9",
+        }
+    }) is True
+    assert molasses.is_active("semver", {
+        "id": "123444",  # valid crc32 percentage
+        "params": {
+            "lte": "1.2.0",
+        }
+    }) is True
+    assert molasses.is_active("semver", {
+        "id": "123444",  # valid crc32 percentage
+        "params": {
+            "lte": "1.3.0",
+        }
+    }) is False
+    assert molasses.is_active("semver", {
+        "id": "123444",  # valid crc32 percentage
+        "params": {
+            "gte": "1.3.0",
+        }
+    }) is True
+    assert molasses.is_active("semver", {
+        "id": "123444",  # valid crc32 percentage
+        "params": {
+            "gte": "1.2.0",
+        }
+    }) is True
+    assert molasses.is_active("semver", {
+        "id": "123444",  # valid crc32 percentage
+        "params": {
+            "gte": "1.1.0",
+        }
+    }) is False
+    assert molasses.is_active("semver", {
+        "id": "123444",  # valid crc32 percentage
+        "params": {
+            "equals": "1.2.0",
+        }
+    }) is True
+    assert molasses.is_active("semver", {
+        "id": "123444",  # valid crc32 percentage
+        "params": {
+            "equals": "1.1.0",
+        }
+    }) is False
+    assert molasses.is_active("semver", {
+        "id": "123444",  # valid crc32 percentage
+        "params": {
+            "doesNotEqual": "1.1.0",
+        }
+    }) is True
+    assert molasses.is_active("semver", {
+        "id": "123444",  # valid crc32 percentage
+        "params": {
+            "doesNotEqual": "1.2.0",
+        }
+    }) is False
     assert molasses.is_active("NUMBERS_BOOLS", {
         "id": "123444",  # valid crc32 percentage
         "params": {

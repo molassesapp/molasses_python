@@ -13,6 +13,7 @@ import sseclient
 import math
 import threading
 import time
+import semver
 from typing import Dict, Optional
 from apscheduler.schedulers.background import BackgroundScheduler
 from apscheduler.triggers.interval import IntervalTrigger
@@ -195,6 +196,10 @@ class MolassesClient:
         elif "userParamType" in constraint and constraint["userParamType"] == "boolean":
             user_value = self.__parse_bool(user_value)
             constraint_value = self.__parse_bool(constraint_value)
+        elif "userParamType" in constraint and constraint["userParamType"] == "semver":
+            user_value = str(user_value)
+            user_value = semver.Version.parse(user_value)
+            constraint_value = semver.Version.parse(constraint_value)
         else:
             user_value = str(user_value)
 
